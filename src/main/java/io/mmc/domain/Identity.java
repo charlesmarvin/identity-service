@@ -47,5 +47,5 @@ public class Identity {
                 '}';
     }
 
-    public enum State { Active, Locked }
+    public enum State {Active, Locked}
 }

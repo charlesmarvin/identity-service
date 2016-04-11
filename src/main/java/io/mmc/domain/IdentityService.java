@@ -9,6 +9,8 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface IdentityService {
     CompletableFuture<Optional<Identity>> getIdentityByPrincipal(String principal);
+
     CompletableFuture<Void> save(Identity identity);
+
     CompletableFuture<Collection<Identity>> findAll();
 }

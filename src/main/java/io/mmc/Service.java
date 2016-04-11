@@ -13,7 +13,7 @@ import org.springframework.data.mongodb.repository.support.MongoRepositoryFactor
 /**
  * Created by charlesmarvin on 4/8/16.
  */
-public class Service  extends Application<ServiceConfiguration> {
+public class Service extends Application<ServiceConfiguration> {
     private static final String APP_NAME = "Identity Service";
 
     public static void main(String[] args) throws Exception {
