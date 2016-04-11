@@ -2,7 +2,4 @@ server:
   rootPath: /api/v1/
 swagger:
   resourcePackage: io.mmc.domain
-mongo:
-  host: 127.0.0.1
-  port: 27017
-  database: identity
+mongoConnectionUri: 'mongodb://127.0.0.1:27017/identity'

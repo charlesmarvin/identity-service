@@ -1,0 +1,5 @@
+server:
+  rootPath: /api/v1/
+swagger:
+  resourcePackage: io.mmc.domain
+mongoConnectionUri: ${MONGO_DB_CONNECTION_URI}
