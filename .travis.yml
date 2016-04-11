@@ -1,0 +1,11 @@
+language: java
+jdk:
+  - oraclejdk8
+deploy:
+  provider: cloudfoundry
+  api: https://api.run.pivotal.io
+  username: marvin.charles@gmail.com
+  password: $CLOUD_FOUNDRY_PASSWORD
+  organization: threetwoonefive
+  space: development
+  edge: true

@@ -1,0 +1,9 @@
+---
+applications:
+- name: identity-service
+  memory: 256MB
+  instances: 2
+  path: target/identity-service-1.0-SNAPSHOT.jar
+  buildpack: https://github.com/cloudfoundry/java-buildpack.git
+  services:
+     - mongodb
