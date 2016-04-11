@@ -17,6 +17,10 @@ public class Service extends Application<ServiceConfiguration> {
     private static final String APP_NAME = "Identity Service";
 
     public static void main(String[] args) throws Exception {
+        if (args == null || args.length == 0) {
+            String configFile = String.format("./config/%s.yml", System.getenv("env").toLowerCase());
+            args = new String[] { "server", ClassLoader.getSystemResource(configFile).getFile() };
+        }
         new Service().run(args);
     }
 
