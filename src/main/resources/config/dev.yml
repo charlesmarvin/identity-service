@@ -3,3 +3,7 @@ server:
 swagger:
   resourcePackage: io.mmc.domain
 mongoConnectionUri: 'mongodb://127.0.0.1:27017/identity'
+redis:
+  host:
+  port:
+  password:

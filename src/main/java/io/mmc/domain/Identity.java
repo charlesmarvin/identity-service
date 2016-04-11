@@ -14,6 +14,11 @@ public class Identity {
     public Identity() {
     }
 
+    public Identity(String principal, State state) {
+        this.principal = principal;
+        this.state = state;
+    }
+
     public String getId() {
         return id;
     }

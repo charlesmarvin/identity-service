@@ -3,3 +3,7 @@ server:
 swagger:
   resourcePackage: io.mmc.domain
 mongoConnectionUri: ${MONGO_DB_CONNECTION_URI}
+redis:
+  host: ${REDIS_HOSTNAME}
+  port: ${REDIS_PORT}
+  password: ${REDIS_PASSWORD}

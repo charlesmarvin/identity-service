@@ -9,8 +9,15 @@ import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import io.mmc.domain.IdentityRepository;
 import io.mmc.domain.IdentityResource;
+import io.mmc.domain.IdentityService;
 import io.mmc.domain.MongoIdentityService;
+import io.mmc.domain.RedisIdentityService;
 import org.springframework.data.mongodb.repository.support.MongoRepositoryFactory;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by charlesmarvin on 4/8/16.
@@ -49,9 +56,19 @@ public class Service extends Application<ServiceConfiguration> {
 
     @Override
     public void run(ServiceConfiguration serviceConfiguration, Environment environment) throws Exception {
+        ServiceConfiguration.RedisConfig redisConfig = serviceConfiguration.redisConfig;
+        JedisPool pool = new JedisPool(new JedisPoolConfig(), redisConfig.host, redisConfig.port, redisConfig.timeout, redisConfig.password);
+        RedisIdentityService redisIdentityService = new RedisIdentityService(pool);
+
         MongoRepositoryFactory factory = serviceConfiguration.getMongoRepositoryFactory();
         IdentityRepository repository = factory.getRepository(IdentityRepository.class);
-        final IdentityResource resource = new IdentityResource(new MongoIdentityService(repository));
+        MongoIdentityService mongoIdentityService = new MongoIdentityService(repository);
+
+        Map<String, IdentityService> map = new HashMap<>();
+        map.put("mongo", mongoIdentityService);
+        map.put("redis", redisIdentityService);
+        final IdentityResource resource = new IdentityResource(map);
+
         environment.jersey().register(resource);
     }
 }

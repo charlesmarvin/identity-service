@@ -17,27 +17,29 @@ import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Map;
 import java.util.concurrent.CompletionException;
 import java.util.function.Function;
 
 /**
  * Created by charlesmarvin on 4/8/16.
  */
-@Path("/identities")
+@Path("/{source}/identities")
 @Produces(MediaType.APPLICATION_JSON)
 @Api("Identity Service")
 public class IdentityResource {
-    private final IdentityService identityService;
+    private final Map<String, IdentityService> identityServiceMap;
 
-    public IdentityResource(IdentityService identityService) {
-        this.identityService = identityService;
+    public IdentityResource(Map<String, IdentityService> identityService) {
+        this.identityServiceMap = identityService;
     }
 
     @GET
     @Timed
     @ApiOperation(value = "Get all Identities", response = Identity.class, responseContainer = "Collection")
-    public void getByPhoneOrEmail(@Suspended final AsyncResponse asyncResponse) {
-        identityService.findAll()
+    public void getByPrincipal(@Suspended final AsyncResponse asyncResponse,
+                               @ApiParam(value = "DataSource", required = true) @PathParam("source") String source) {
+        getIdentityService(source).findAll()
                 .thenAccept(asyncResponse::resume)
                 .exceptionally(getExceptionHandler(asyncResponse));
     }
@@ -46,12 +48,13 @@ public class IdentityResource {
     @Path("/{principal}")
     @Timed
     @ApiOperation("Search Identity by principal")
-    public void getByPhoneOrEmail(@Suspended final AsyncResponse asyncResponse,
-                                  @ApiParam(value = "Identity Principal", required = true) @PathParam("principal") String principal) {
+    public void getByPrincipal(@Suspended final AsyncResponse asyncResponse,
+                               @ApiParam(value = "DataSource", required = true) @PathParam("source") String source,
+                               @ApiParam(value = "Identity Principal", required = true) @PathParam("principal") String principal) {
         if ((StringUtils.isBlank(principal))) {
             throw new WebApplicationException("Principal is required", Response.Status.BAD_REQUEST);
         }
-        identityService.getIdentityByPrincipal(principal)
+        getIdentityService(source).getIdentityByPrincipal(principal)
                 .thenAccept(identityOpt -> identityOpt.map(asyncResponse::resume)
                         .orElseThrow(() -> new WebApplicationException("No such identity exists.", Response.Status.NOT_FOUND)))
                 .exceptionally(getExceptionHandler(asyncResponse));
@@ -62,6 +65,7 @@ public class IdentityResource {
     @Timed
     @ApiOperation(value = "Update Identity validity by email or phone", response = Identity.class)
     public void updateValidity(@Suspended final AsyncResponse asyncResponse,
+                               @ApiParam(value = "DataSource", required = true) @PathParam("source") String source,
                                @ApiParam(value = "Identity Principal", required = true) @PathParam("principal") String principal,
                                @ApiParam(value = "Updated Identity", required = true) Identity identity) {
         if (StringUtils.isBlank(identity.getPrincipal())
@@ -69,6 +73,7 @@ public class IdentityResource {
                 || identity.getState() == null) {
             throw new WebApplicationException("Bad input", Response.Status.BAD_REQUEST);
         }
+        IdentityService identityService = getIdentityService(source);
         identityService.getIdentityByPrincipal(principal)
                 .thenAccept(identityOpt -> identityOpt.map(storedIdentity -> {
                     storedIdentity.setState(identity.getState());
@@ -85,11 +90,12 @@ public class IdentityResource {
     @Timed
     @ApiOperation(value = "Create a new Identity", response = Identity.class)
     public void createValidity(@Suspended final AsyncResponse asyncResponse,
+                               @ApiParam(value = "DataSource", required = true) @PathParam("source") String source,
                                @ApiParam(value = "New Identity", required = true) Identity identity) {
         if (StringUtils.isBlank(identity.getPrincipal()) && identity.getState() == null) {
             throw new WebApplicationException("Bad input", Response.Status.BAD_REQUEST);
         }
-        identityService.save(identity)
+        getIdentityService(source).save(identity)
                 .thenRun(() -> asyncResponse.resume(identity))
                 .exceptionally(getExceptionHandler(asyncResponse));
     }
@@ -103,5 +109,9 @@ public class IdentityResource {
             asyncResponse.resume(e);
             return null;
         };
+    }
+
+    private IdentityService getIdentityService(String source) {
+        return identityServiceMap.get(source);
     }
 }

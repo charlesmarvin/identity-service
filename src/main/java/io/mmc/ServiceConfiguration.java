@@ -18,9 +18,22 @@ public class ServiceConfiguration extends Configuration {
     public SwaggerBundleConfiguration swaggerBundleConfiguration;
     @JsonProperty("mongoConnectionUri")
     public String mongoConnectionUri;
+    @JsonProperty("redis")
+    public RedisConfig redisConfig;
 
     public MongoRepositoryFactory getMongoRepositoryFactory() throws UnknownHostException {
         MongoTemplate template = new MongoTemplate(new SimpleMongoDbFactory(new MongoClientURI(mongoConnectionUri)));
         return new MongoRepositoryFactory(template);
+    }
+
+    public static class RedisConfig {
+        @JsonProperty
+        public String host;
+        @JsonProperty
+        public int port;
+        @JsonProperty
+        public String password;
+        @JsonProperty
+        public int timeout = 2000;
     }
 }
