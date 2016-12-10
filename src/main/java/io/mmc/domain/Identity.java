@@ -2,12 +2,18 @@ package io.mmc.domain;
 
 import org.springframework.data.annotation.Id;
 
+import java.util.Set;
+
 /**
  * Created by charlesmarvin on 4/8/16.
  */
 public class Identity {
     @Id
     private String id;
+    private String firstname;
+    private String lastname;
+    private Set<String> emails;
+    private Set<String> phoneNumbers;
     private String principal;
     private State state;
 
